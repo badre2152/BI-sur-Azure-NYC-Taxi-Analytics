@@ -1,0 +1,101 @@
+{
+	"name": "df_dim_payment",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_curated_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_dim_payment",
+						"type": "DatasetReference"
+					},
+					"name": "sink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select"
+				},
+				{
+					"name": "derivedColumn"
+				},
+				{
+					"name": "surrogateKey"
+				},
+				{
+					"name": "window"
+				},
+				{
+					"name": "filter"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          VendorID as integer,",
+				"          tpep_pickup_datetime as timestamp,",
+				"          tpep_dropoff_datetime as timestamp,",
+				"          passenger_count as integer,",
+				"          trip_distance as double,",
+				"          RatecodeID as integer,",
+				"          PULocationID as integer,",
+				"          DOLocationID as integer,",
+				"          payment_type as integer,",
+				"          fare_amount as double,",
+				"          extra as double,",
+				"          mta_tax as double,",
+				"          tip_amount as double,",
+				"          tolls_amount as double,",
+				"          improvement_surcharge as double,",
+				"          total_amount as double,",
+				"          congestion_surcharge as double,",
+				"          Airport_fee as double,",
+				"          cbd_congestion_fee as double,",
+				"          Revenue as double,",
+				"          pickup_hour as integer,",
+				"          trip_duration as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source",
+				"source select(mapColumn(",
+				"          payment_type",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select",
+				"filter derive(payment_name = iif(rn == 1,'Credit Card', iif(rn == 2,'Cash', iif(rn == 3,'No Charge', iif(rn == 4,'Dispute', iif(rn == 5,'Unknown', iif(rn == 6,'Voided Trip', 'Unknown'))))))) ~> derivedColumn",
+				"derivedColumn keyGenerate(output(payment_key as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey",
+				"select window(over(payment_type),",
+				"     asc(payment_type, true),",
+				"     rn = rowNumber()) ~> window",
+				"window filter(rn == 1) ~> filter",
+				"surrogateKey sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          PaymentKey as integer,",
+				"          PaymentType as integer,",
+				"          PaymentName as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink"
+			]
+		}
+	}
+}

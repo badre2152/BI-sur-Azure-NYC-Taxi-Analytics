@@ -1,0 +1,20 @@
+{
+	"name": "ds_http_yellow_taxi",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_http_nyc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "trip-data/yellow_tripdata_2025-01.parquet"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

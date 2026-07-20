@@ -1,0 +1,130 @@
+{
+	"name": "df_raw_to_curated",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_yellow_taxi",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_curated_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select",
+					"description": "Renaming source to select1 with columns 'VendorID, tpep_pickup_datetime, tpep_dropoff_datetime, passenger_count, trip_distance, RatecodeID, PULocationID, DOLocationID, payment_type, fare_amount, extra, mta_tax, tip_amount, tolls_amount, improvement_surcharge, total_amount, congestion_surcharge, Airport_fee, cbd_congestion_fee'"
+				},
+				{
+					"name": "cast"
+				},
+				{
+					"name": "derivedColumn"
+				},
+				{
+					"name": "filter"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          VendorID as integer,",
+				"          tpep_pickup_datetime as string,",
+				"          tpep_dropoff_datetime as string,",
+				"          passenger_count as long,",
+				"          trip_distance as double,",
+				"          RatecodeID as long,",
+				"          store_and_fwd_flag as string,",
+				"          PULocationID as integer,",
+				"          DOLocationID as integer,",
+				"          payment_type as long,",
+				"          fare_amount as double,",
+				"          extra as double,",
+				"          mta_tax as double,",
+				"          tip_amount as double,",
+				"          tolls_amount as double,",
+				"          improvement_surcharge as double,",
+				"          total_amount as double,",
+				"          congestion_surcharge as double,",
+				"          Airport_fee as double,",
+				"          cbd_congestion_fee as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source",
+				"source select(mapColumn(",
+				"          VendorID,",
+				"          tpep_pickup_datetime,",
+				"          tpep_dropoff_datetime,",
+				"          passenger_count,",
+				"          trip_distance,",
+				"          RatecodeID,",
+				"          PULocationID,",
+				"          DOLocationID,",
+				"          payment_type,",
+				"          fare_amount,",
+				"          extra,",
+				"          mta_tax,",
+				"          tip_amount,",
+				"          tolls_amount,",
+				"          improvement_surcharge,",
+				"          total_amount,",
+				"          congestion_surcharge,",
+				"          Airport_fee,",
+				"          cbd_congestion_fee",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select",
+				"select cast(output(",
+				"          tpep_pickup_datetime as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss',",
+				"          tpep_dropoff_datetime as timestamp 'yyyy-MM-dd\\'T\\'HH:mm:ss',",
+				"          passenger_count as integer,",
+				"          RatecodeID as integer,",
+				"          payment_type as integer",
+				"     ),",
+				"     errors: true) ~> cast",
+				"cast derive(Revenue = fare_amount + tip_amount,",
+				"          pickup_hour = hour(tpep_pickup_datetime),",
+				"          trip_duration = tpep_pickup_datetime - tpep_dropoff_datetime,",
+				"          passenger_count = iif(isNull(passenger_count),1,passenger_count),",
+				"          Airport_fee = iif(isNull(Airport_fee), toDouble(0), Airport_fee),",
+				"          congestion_surcharge = iif(isNull(congestion_surcharge), toDouble(0), congestion_surcharge),",
+				"          RatecodeID = iif(isNull(RatecodeID),0,RatecodeID)) ~> derivedColumn",
+				"derivedColumn filter(tpep_pickup_datetime <= tpep_dropoff_datetime",
+				"&&",
+				"passenger_count > 0",
+				"&&",
+				"trip_distance >= 0",
+				"&&",
+				"trip_distance <= 19.5",
+				"&&",
+				"fare_amount >= 0",
+				"&&",
+				"fare_amount <= 72.3",
+				"&&",
+				"total_amount >= 0",
+				"&&",
+				"total_amount <= 102.92) ~> filter",
+				"filter sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink"
+			]
+		}
+	}
+}

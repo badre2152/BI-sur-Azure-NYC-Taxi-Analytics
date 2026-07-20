@@ -1,0 +1,88 @@
+{
+	"name": "ds_sql_fact_trips",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TripID",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "PickupDateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DropoffDateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PickupLocationKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DropoffLocationKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PaymentKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "VendorID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PassengerCount",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TripDistance",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "FareAmount",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "TipAmount",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "TotalAmount",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Revenue",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "TripDuration",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Fact_Trips"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

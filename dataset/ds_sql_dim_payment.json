@@ -1,0 +1,32 @@
+{
+	"name": "ds_sql_dim_payment",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "PaymentKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PaymentType",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PaymentName",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Dim_Payment"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
