@@ -64,7 +64,7 @@
 					{
 						"activity": "Copy data",
 						"dependencyConditions": [
-							"Completed"
+							"Succeeded"
 						]
 					}
 				],
