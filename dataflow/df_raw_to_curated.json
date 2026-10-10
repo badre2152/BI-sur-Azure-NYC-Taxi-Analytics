@@ -96,7 +96,7 @@
 				"     errors: true) ~> cast",
 				"cast derive(Revenue = fare_amount + tip_amount,",
 				"          pickup_hour = hour(tpep_pickup_datetime),",
-				"          trip_duration = tpep_pickup_datetime - tpep_dropoff_datetime,",
+				"          trip_duration = tpep_dropoff_datetime - tpep_pickup_datetime,",
 				"          passenger_count = iif(isNull(passenger_count),1,passenger_count),",
 				"          Airport_fee = iif(isNull(Airport_fee), toDouble(0), Airport_fee),",
 				"          congestion_surcharge = iif(isNull(congestion_surcharge), toDouble(0), congestion_surcharge),",
